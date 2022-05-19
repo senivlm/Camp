@@ -1,4 +1,4 @@
-﻿using Task1;
+﻿using Task2;
 
 Product apple = new Product(name: "Apple", price: 12.50m, weight: 0.725);
 Product banana = new Product("Banana", 47m, 0.55);
@@ -8,5 +8,11 @@ Buy basket = new Buy(apple, banana);
 basket.Add(apple, banana, milk);
 
 Check.DisplayInfo(basket);
+
+Meat mutton = new Meat("Mutton", 10m, 2.25, MeatGradeEnum.FirstGrade, MeatTypeEnum.Mutton);
+Meat veal = new Meat()
+{
+    MeatType = MeatTypeEnum.Veal
+};
 
 Console.ReadKey();

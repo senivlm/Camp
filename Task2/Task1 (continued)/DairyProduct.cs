@@ -25,13 +25,13 @@ namespace Task2
         {
             switch (expirationTermInDays)
             {
-                case int when expirationTermInDays < 20:
+                case < 20:
                     percentage += 15;
                     break;
-                case int when expirationTermInDays < 30:
+                case < 30:
                     percentage += 10;
                     break;
-                case int when expirationTermInDays < 60:
+                case < 60:
                     percentage += 5;
                     break;
                 default:

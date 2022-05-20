@@ -43,6 +43,11 @@ namespace Task2
             Weight = weight;
         }
 
+        public virtual void ChangePrice(double percentage)
+        {
+            Price += Price * (decimal)percentage / 100;
+        }
+
         public override string ToString()
         {
             return string.Format($"Name: {Name,-10}| Cost: {Price,-10}| Weight: {Weight,-10}");

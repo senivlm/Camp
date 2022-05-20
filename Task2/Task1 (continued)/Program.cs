@@ -25,4 +25,39 @@ Console.WriteLine("\nBefore the change: {0}", sourcream.Price);
 sourcream.ChangePrice(10);
 Console.WriteLine("After the change: {0}", sourcream.Price);
 
+Storage storage = new Storage();
+storage.AddProducts();
+
+Console.WriteLine(storage.ToString());
+storage.PrintAll();
+
+List<Product> exampleList = new List<Product>()
+{
+    new Product(),
+    new Meat(),
+    new DairyProduct()
+};
+Storage anotherStorage = new Storage(exampleList);
+
+Console.WriteLine(anotherStorage.ToString());
+anotherStorage.PrintAll();
+
+Console.WriteLine("Types in storage:");
+for (int i = 0; i < storage.Capasity; i++)
+{
+    Console.WriteLine($"{storage[i].Name} - {storage[i].GetType().Name}");
+}
+Console.WriteLine();
+
+List<Meat> meatProducts = storage.FindAllMeatProducts();
+Console.WriteLine("Meat products:");
+foreach (Meat meat in meatProducts)
+{
+    Console.WriteLine(meat.ToString());
+}
+Console.WriteLine();
+
+storage.ChangePrices(10);
+storage.PrintAll();
+
 Console.ReadKey();

@@ -18,7 +18,7 @@ namespace Task3
         }
         public override string ToString()
         {
-            return $"Num: {Number} - {Frequancy}";
+            return $"<Key {Number}, Value {Frequancy}>";
         }
     }
 }

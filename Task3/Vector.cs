@@ -8,8 +8,8 @@ namespace Task3
 {
     internal class Vector
     {
-        private readonly int[]? _array;
-        public int Lenght => _array?.Length ?? 0;
+        private int[] _array;
+        public int Lenght => _array.Length;
 
         public Vector(int[] arr)
         {
@@ -19,7 +19,10 @@ namespace Task3
         {
             _array = new int[n];
         }
-        public Vector() { }
+        public Vector() 
+        {
+            _array = Array.Empty<int>();
+        }
 
         public int this[int index]
         {
@@ -27,91 +30,32 @@ namespace Task3
             set => _array[index] = value;
         }
 
-        /// <summary>
-        /// Fills a vector with values that greater than or equals to min and
-        /// less than or equal to max.
-        /// </summary>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
         public void RandomInitialization(int min, int max)
         {
             Random random = new Random();
-            max++;
             for (int i = 0; i < _array?.Length; i++)
             {
                 _array[i] = random.Next(min, max);
             }
         }
 
-        public void RandomInitialization()
+        public void InitShuffle()
         {
-            //int index = Array.IndexOf(arr, 2);
-            //Console.WriteLine(index);
-
+            for (int i = 0; i < _array.Length; i++)
+            {
+                _array[i] = i + 1;
+            }
             Random random = new Random();
-            int x;
-            for (int i = 0; i < _array.Length; i++)
-            {
-                while (_array[i] == 0)
-                {
-                    x = random.Next(1, _array.Length + 1);
-                    bool isExist = false;
-                    for (int j = 0; j < i; j++)
-                    {
-                        if (x == _array[j])
-                        {
-                            isExist = true;
-                            break;
-                        }
-                    }
-                    if (!isExist)
-                    {
-                        _array[i] = x;
-                        break;
-                    }
-                }
-            }
+            _array = _array.OrderBy(x => random.Next()).ToArray();
         }
-
-        public Pair[] CalculateFreq()
+        public Pair[] CalculateFrequency()
         {
+            var res = _array
+                .GroupBy(x => x)
+                .Select(x => new Pair(x.Key, x.Count()))
+                .ToArray();
 
-            Pair[] pairs = new Pair[_array.Length];
-
-            for (int i = 0; i < _array.Length; i++)
-            {
-                pairs[i] = new Pair(0, 0);
-
-            }
-            int countDifference = 0;
-
-            for (int i = 0; i < _array.Length; i++)
-            {
-                bool isElement = false;
-                for (int j = 0; j < countDifference; j++)
-                {
-                    if (_array[i] == pairs[j].Number)
-                    {
-                        pairs[j].Frequancy++;
-                        isElement = true;
-                        break;
-                    }
-                }
-                if (!isElement)
-                {
-                    pairs[countDifference].Frequancy++;
-                    pairs[countDifference].Number = _array[i];
-                    countDifference++;
-                }
-            }
-
-            Pair[] result = new Pair[countDifference];
-            for (int i = 0; i < countDifference; i++)
-            {
-                result[i] = pairs[i];
-            }
-
-            return result;
+            return res;
         }
 
         public bool IsPalindrome()
@@ -129,22 +73,20 @@ namespace Task3
         }
         public void Reverse()
         {
-            for (int i = 0; i < _array?.Length / 2; i++)
-            {
-                (_array[i], _array[_array.Length - 1 - i]) =
-                    (_array[_array.Length - 1 - i], _array[i]);
-            }
+            int lenght = _array.Length / 2;
 
-            //Standart method
-            //Array.Reverse(_array);
+            for (int i = 0; i < lenght; i++)
+            {
+                (_array[i], _array[lenght - 1 - i]) = (_array[lenght - 1 - i], _array[i]);
+            }
         }
-        public void FindLongestSequence()
+        public string FindLongestSequence()
         {
             int? resNum = null;
             int maxCount = 1;
             int count = 1;
 
-            for (int i = 0; i < _array?.Length - 1; i++)
+            for (int i = 0; i < _array.Length - 1; i++)
             {
                 if (_array[i] == _array[i + 1])
                 {
@@ -162,19 +104,14 @@ namespace Task3
             }
 
             if (resNum != null)
-                Console.WriteLine($"Number {resNum} occurs {maxCount} times.");
+                return $"Number {resNum} occurs {maxCount} times in a row.";
             else
-                Console.WriteLine("No sequence is found.");
+                return "Every number occurs only once.";
         }
 
         public override string ToString()
         {
-            string str = "";
-            for (int i = 0; i < _array?.Length; i++)
-            {
-                str += _array[i] + " ";
-            }
-            return str;
+            return string.Join(' ', _array);
         }
     }
 }

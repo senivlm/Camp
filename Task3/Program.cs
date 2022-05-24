@@ -27,4 +27,15 @@ foreach (Pair pair in freq)
     Console.WriteLine(pair.ToString());
 }
 
+Console.WriteLine("\nDiagonal snake with direction:");
+Matrix matrix = new Matrix(4);
+
+Console.WriteLine("\nUp right:\n");
+matrix.DiagonalSnake(DiagonalShakeDirectionEnum.UpRight);
+Console.WriteLine(matrix);
+
+Console.WriteLine("Left down:\n");
+matrix.DiagonalSnake(DiagonalShakeDirectionEnum.LeftDown);
+Console.WriteLine(matrix);
+
 Console.ReadKey();

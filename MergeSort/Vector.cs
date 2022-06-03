@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Task4
+namespace Task5
 {
     internal class Vector
     {
         private int[] _array;
         public int Lenght => _array.Length;
+
+        #region Ctors
 
         public Vector(int[] arr)
         {
@@ -24,6 +26,8 @@ namespace Task4
             _array = Array.Empty<int>();
         }
 
+        #endregion
+
         public int this[int index]
         {
             get => _array[index];
@@ -34,6 +38,8 @@ namespace Task4
         {
             return string.Join(' ', _array);
         }
+
+        #region Methods
 
         public void RandomInitialization(int min, int max)
         {
@@ -114,6 +120,8 @@ namespace Task4
                 return "Every number occurs only once.";
         }
 
+        #endregion
+
         #region Sort
 
         public static void QuickSort(Vector vec, int start, int end)
@@ -177,6 +185,7 @@ namespace Task4
             j = 0;
             int idx = l;
 
+
             while (i < sizeL && j < sizeR)
             {
                 if (tempL[i] <= tempR[j])
@@ -205,6 +214,11 @@ namespace Task4
                 j++;
                 idx++;
             }
+        }
+
+        public static void MergeSortWithFiles(FileHandler fh)
+        {
+            
         }
 
         #endregion

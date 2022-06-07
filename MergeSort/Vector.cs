@@ -134,7 +134,6 @@ namespace Task5
                 QuickSort(vec, pivotIdx + 1, end);
             }
         }
-
         private static int Partition(Vector vec, int start, int end)
         {
             int pivot = vec[end];
@@ -164,7 +163,6 @@ namespace Task5
                 Merge(vec, l, middlePoint, r);
             }
         }
-
         private static void Merge(Vector vec, int l, int middlePoint, int r)
         {
             int sizeL = middlePoint - l + 1,
@@ -215,7 +213,6 @@ namespace Task5
                 idx++;
             }
         }
-
         public static void MergeSortWithFiles(string filename)
         {
             var fh = new FileHandler(filename);
@@ -233,6 +230,42 @@ namespace Task5
                 Vector v = hf.ReadVector();
                 MergeSort(v, 0, v.Lenght - 1);
                 hf.WriteVector(v);
+            }
+        }
+
+        public static void HeapSort(Vector v)
+        {
+            int n = v.Lenght;
+
+            for (int i = n / 2 - 1; i >= 0; i--)
+                Heapify(v, n, i);
+
+            for (int i = n - 1; i > 0; i--)
+            {
+                // Move root to end.
+                (v[0], v[i]) = (v[i], v[0]);
+
+                Heapify(v, i, 0);
+            }
+        }
+        private static void Heapify(Vector v, int n, int root)
+        {
+            int largest = root;
+            int leftNode = 2 * root + 1;
+            int rightNode = 2 * root + 2;
+
+            if (leftNode < n && v[leftNode] > v[largest])
+                largest = leftNode;
+
+            if (rightNode < n && v[rightNode] > v[largest])
+                largest = rightNode;
+
+            if (largest != root)
+            {
+                (v[largest], v[root]) = (v[root], v[largest]);
+
+                // Recursively update subtree.
+                Heapify(v, n, largest);
             }
         }
 

@@ -1,6 +1,11 @@
 ﻿using Task5;
 
-Vector.MergeSortWithFiles("InputArray.txt");
+Vector v = new Vector(new int[] { 9, 3, 5, 3, 5, 33, 4, 100 });
 
-Console.WriteLine("Success!");
+Console.WriteLine("Initial vector:\n{0}", v);
+
+Vector.HeapSort(v);
+
+Console.WriteLine("\nSorted vector:\n{0}", v);
+
 Console.ReadKey();

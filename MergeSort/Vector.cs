@@ -216,9 +216,24 @@ namespace Task5
             }
         }
 
-        public static void MergeSortWithFiles(FileHandler fh)
+        public static void MergeSortWithFiles(string filename)
         {
-            
+            var fh = new FileHandler(filename);
+
+            (string file1, string file2) = fh.Split();
+            Sort(file1);
+            Sort(file2);
+            fh.Dispose();
+
+            fh.Merge(file1, file2);
+
+            void Sort(string path)
+            {
+                FileHandler hf = new FileHandler(path);
+                Vector v = hf.ReadVector();
+                MergeSort(v, 0, v.Lenght - 1);
+                hf.WriteVector(v);
+            }
         }
 
         #endregion

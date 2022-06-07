@@ -8,168 +8,201 @@ namespace Task5
 {
     internal class FileHandler : IDisposable
     {
-        private readonly string _path;
-        private StreamReader _sr;
-
-        public int Count { get; set; } = 0;
+        private string _path;
+        private string _dir;
+        private FileIterator _iterator;
 
         public FileHandler() : this(null) { }
-        public FileHandler(string path)
+        public FileHandler(string filename)
         {
-            _path = path;
-            _sr = new StreamReader(path);
-
-            if (path != null)
+            if (filename != null)
             {
-                // Read first line with count of numbers.
-                Count = Convert.ToInt32(_sr.ReadLine());
+                // Relative path to project folder.
+                _dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.ToString();
+
+                _path = Path.Combine(_dir, "assets", filename);
+                _iterator = new FileIterator(_path);
             }
         }
 
         public override string ToString()
         {
-            return $"This file handler operates on:\n{_path}";
+            return $"Opetates on: {_path}";
         }
 
-        public Vector? ReadVector()
-        {
-            try
-            {
-                int[] arr;
-                using (StreamReader sr = new StreamReader(_path))
-                {
-                    // Skip line with count of numbers.
-                    sr.ReadLine();
-
-                    // Read vector.
-                    arr = sr.ReadToEnd().Split(' ')
-                        .Select(x => Convert.ToInt32(x))
-                        .ToArray();
-                }
-                return new Vector(arr);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Unable to read from file:");
-                Console.WriteLine(ex.Message);
-            }
-            return null;
-        }
         public void WriteVector(Vector v)
         {
-            // Close StreamReader with the same path.
-            _sr.Dispose();
-            try
-            {
-                using (StreamWriter sw = new StreamWriter(_path))
-                {
-                    // Write count of numbers.
-                    sw.WriteLine(v.Lenght);
+            if (!_iterator.IsDisposed)
+                _iterator.Dispose();
 
-                    // Write vector.
-                    sw.Write(string.Join(' ', v));
-
-                    sw.Close();
-                }
-            }
-            catch (Exception ex)
+            using (StreamWriter sw = new StreamWriter(_path))
             {
-                Console.WriteLine("Unable to write to file:");
-                Console.WriteLine(ex.Message);
+                // Write the length of the vector.
+                sw.WriteLine(v.Lenght);
+
+                sw.Write(string.Join(' ', v));
             }
-            // Open StreamReader with the same path. 
-            _sr = new StreamReader(_path);
-            _sr.ReadLine();
         }
-        public void SplitIntoTwoFiles()
+        public Vector ReadVector()
         {
+            int[] arr;
             using (StreamReader sr = new StreamReader(_path))
             {
-                // Read line with count of numbers.
-                int countInFile = Convert.ToInt32(sr.ReadLine());
+                // Read the length of the vector.
+                int length = Convert.ToInt32(sr.ReadLine());
 
-                int count = countInFile / 2;
+                if (length == 0)
+                    return new Vector();
 
-                Vector v1 = ReadToVector(sr, count);
-                FileHandler fh1 = new FileHandler(@"C:\Users\gagar\source\repos\Camp\MergeSort\assets\arr1.txt");
-                fh1.WriteVector(v1);
+                arr = sr.ReadLine().Trim().Split()
+                .Select(x => int.Parse(x))
+                .ToArray();
 
-                Vector v2 = ReadToVector(sr, countInFile - count);
-                FileHandler fh2 = new FileHandler(@"C:\Users\gagar\source\repos\Camp\MergeSort\assets\arr2.txt");
-                fh2.WriteVector(v2);
+            }
+            return new Vector(arr);
+        }
+
+        public (string file1, string file2) Split()
+        {
+            string file1 = Path.Combine(_dir, "assets", "arr1.txt"),
+                file2 = Path.Combine(_dir, "assets", "arr2.txt");
+
+            int length;
+            using (StreamReader sr = new StreamReader(_path))
+            {
+                length = Convert.ToInt32(sr.ReadLine());
             }
 
-            Vector ReadToVector(StreamReader sr, int count)
-            {
-                var v = new Vector(count);
-                var buffer = new StringBuilder();
+            Write(file1, length / 2);
+            Write(file2, length - length / 2);
 
-                for (int i = 0; i < count; i++)
+            return (file1, file2);
+
+            void Write(string path, int length)
+            {
+                using (StreamWriter sw = new StreamWriter(path))
                 {
-                    char c = (char)sr.Read();
-                    while (char.IsDigit(c))
+                    sw.WriteLine(length);
+                    for (int i = 0; i < length; i++)
                     {
-                        buffer.Append(c);
-                        c = (char)sr.Read();
+                        int? num = ReadNext();
+                        if (num is null)
+                        {
+                            throw new Exception($"Invalid data in file: {path}");
+                        }
+                        sw.Write(num + " ");
                     }
-                    v[i] = Convert.ToInt32(buffer.ToString());
-                    buffer.Clear();
                 }
-                return v;
             }
         }
-        public int? ReadNext()
+        public void Merge(string file1, string file2)
         {
-            if (_sr is null)
-                return null;
+            var fh1 = new FileHandler(file1);
+            var fh2 = new FileHandler(file2);
 
-            var buffer = new StringBuilder();
+            int length = fh1.GetVectorSize() + fh2.GetVectorSize();
 
-            if (!_sr.EndOfStream)
+            using (StreamWriter sw = new StreamWriter(_path))
             {
+                // Write the length of the vector
+                sw.WriteLine(length);
+
+                int? a1 = fh1.ReadNext(), a2 = fh2.ReadNext();
+
+                while (!fh1.IsDisposed && !fh2.IsDisposed)
+                {
+                    if (a1 <= a2)
+                    {
+                        sw.Write(a1 + " ");
+                        a1 = fh1.ReadNext();
+                    }
+                    else
+                    {
+                        sw.Write(a2 + " ");
+                        a2 = fh2.ReadNext();
+                    }
+                }
+
+                while (!fh1.IsDisposed)
+                {
+                    sw.Write(a1 + " ");
+                    a1 = fh1.ReadNext();
+                }
+                while (!fh2.IsDisposed)
+                {
+                    sw.Write(a2 + " ");
+                    a2 = fh2.ReadNext();
+                }
+            }
+        }
+
+        public int? ReadNext() => _iterator.ReadNext();
+        public void Restart() => _iterator.Restart(_path);
+        public bool IsDisposed => _iterator.IsDisposed;
+        public int GetVectorSize()
+        {
+            int size;
+            using (StreamReader sr = new StreamReader(_path))
+            {
+                size = Convert.ToInt32(sr.ReadLine());
+            }
+            return size;
+        }
+
+        public void Dispose()
+        {
+            _iterator.Dispose();
+        }
+
+        private class FileIterator : IDisposable
+        {
+            private StreamReader _sr;
+            public bool IsDisposed = false;
+
+            public FileIterator(string path)
+            {
+                Restart(path);
+            }
+
+            public int? ReadNext()
+            {
+                if (IsDisposed)
+                    return null;
+
+                // Skip non-digits.
                 char c;
+                while (!char.IsDigit(c = (char)_sr.Peek()) && !_sr.EndOfStream)
+                {
+                    _sr.Read();
+                }
+
+                if (_sr.EndOfStream)
+                {
+                    _sr.Dispose();
+                    IsDisposed = true;
+                    return null;
+                }
+
+                var buffer = new StringBuilder();
                 while (char.IsDigit(c = (char)_sr.Read()))
                 {
                     buffer.Append(c);
                 }
                 return Convert.ToInt32(buffer.ToString());
             }
-            else
+            public void Restart(string path)
+            {
+                _sr = new StreamReader(path);
+                IsDisposed = false;
+
+                // Read line with count of numbers.
+                _sr.ReadLine();
+            }
+            public void Dispose()
             {
                 _sr.Dispose();
-                _sr = null;
-                return null;
+                IsDisposed = true;
             }
-        }
-        public IEnumerable<int> Numbers()
-        {
-            var buffer = new StringBuilder();
-
-            using (StreamReader sr = new StreamReader(_path))
-            {
-                // Skip line with count of numbers.
-                sr.ReadLine();
-
-                while (!sr.EndOfStream)
-                {
-                    char c = (char)sr.Read();
-                    if (!char.IsDigit(c))
-                    {
-                        int num = Convert.ToInt32(buffer.ToString());
-                        buffer.Clear();
-                        yield return num;
-                    }
-                    else
-                    {
-                        buffer.Append(c);
-                    }
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            _sr.Dispose();
         }
     }
 }
